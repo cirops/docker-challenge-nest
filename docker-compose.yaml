@@ -1,0 +1,35 @@
+version: '3.8'
+
+volumes:
+  mongo_data:
+    driver: local
+
+services:
+  database:
+    restart: always
+    build:
+      context: .
+      dockerfile: mongo.Dockerfile
+    volumes:
+      - "mongo_data:/data/db"
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: nest
+      MONGO_REPLICA_HOST: database
+      MONGO_REPLICA_PORT: 27017
+  
+  app:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/usr/app
+    depends_on:
+      - database
+    ports:
+      - 3000:3000
+      - 5555:5555
